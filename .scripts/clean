@@ -1,0 +1,5 @@
+#!/bin/zsh
+
+ROOT_DIR=$(git rev-parse --show-toplevel)
+
+find "$ROOT_DIR/terraform" -path '*.terraform/*' -or -name '.terraform*' -not -name '.terraform-docs*' -exec rm -rf {} +

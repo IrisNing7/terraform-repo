@@ -1,0 +1,10 @@
+#!/bin/zsh
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+TARGET_DIR=$(printf '%s\n' "${${PWD}#"$REPO_ROOT/"}")
+
+docker run -it --rm \
+-v "${REPO_ROOT}:/workdir" \
+-u $(id -u) \
+-w /workdir \
+quay.io/terraform-docs/terraform-docs markdown table "${TARGET_DIR}" $@

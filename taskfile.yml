@@ -1,0 +1,32 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  format:
+    cmds:
+      - "{{.ROOT_DIR}}/.scripts/terraform fmt -recursive {{.CLI_ARGS}}"
+  terraform:
+    dir: '{{.USER_WORKING_DIR}}'
+    cmds:
+      - "{{.ROOT_DIR}}/.scripts/terraform {{.CLI_ARGS}}"
+  init:
+    dir: '{{.USER_WORKING_DIR}}'
+    cmds:
+      - "{{.ROOT_DIR}}/.scripts/terraform init {{.CLI_ARGS}}"
+  plan:
+    dir: '{{.USER_WORKING_DIR}}'
+    cmds:
+      - "{{.ROOT_DIR}}/.scripts/terraform plan {{.CLI_ARGS}}"
+  apply:
+    dir: '{{.USER_WORKING_DIR}}'
+    cmds:
+      - "{{.ROOT_DIR}}/.scripts/terraform apply {{.CLI_ARGS}}"
+  terraform-docs:
+    dir: '{{.USER_WORKING_DIR}}'
+    cmds:
+      - "{{.ROOT_DIR}}/.scripts/terraform-docs {{.CLI_ARGS}}"
+  clean:
+    dir: '{{.USER_WORKING_DIR}}'
+    cmds:
+      - "{{.ROOT_DIR}}/.scripts/clean {{.CLI_ARGS}}"

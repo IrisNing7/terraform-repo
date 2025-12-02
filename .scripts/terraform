@@ -1,0 +1,54 @@
+#!/bin/zsh
+
+# Assumes the following prerequisites:
+# installed: zsh, aws cli, jq, docker, git
+# 'aws sso login' has been run
+
+# brew install podman podman-tui
+# podman machine init
+# podman machine stop
+# podman machine set --rootful
+# sudo /opt/homebrew/Cellar/podman/5.7.0/bin/podman-mac-helper install
+# podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}'
+# echo "export DOCKER_HOST='unix://<your_podman_socket_location>'" >> "$HOME/.zshrc"
+# source ~/.zshrc
+# echo $DOCKER_HOST
+# podman machine start
+
+
+TERRAFORM_VERSION="1.12.2"
+
+AWS_CREDENTIALS=$(ls -t $HOME/.aws/cli/cache/*.json | head -n1 | xargs cat | jq -r '.Credentials')
+AWS_ACCESS_KEY_ID=$(echo "$AWS_CREDENTIALS" | jq -r '.AccessKeyId')
+AWS_SECRET_ACCESS_KEY=$(echo "$AWS_CREDENTIALS" | jq -r '.SecretAccessKey')
+AWS_SESSION_TOKEN=$(echo "$AWS_CREDENTIALS" | jq -r '.SessionToken')
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+TERRAFORM_ARGS=("")
+DOCKER_OPTS=("--rm")
+
+# mkdir -p "${REPO_ROOT}/terraform/.terraform/plugins"
+
+# This check alows us to run interactivily when a terminal is attached, but non-interactively when run through something like a git hook
+if test -t 0; then
+  DOCKER_OPTS=("-it" "${DOCKER_OPTS[@]}")
+fi
+
+# if [[ $1 == "init" ]]; then
+#   TERRAFORM_ARGS=("${TERRAFORM_ARGS[@]}" "-git-plugins=true")
+# fi
+
+if [[ "${REPO_ROOT}" != "${PWD}" ]]; then
+  TERRAFORM_ARGS=("${TERRAFORM_ARGS[@]}" "-chdir=$(printf '%s\n' ${$(pwd)#"$REPO_ROOT/"})")
+fi
+
+docker run "${DOCKER_OPTS[@]}" \
+-v $HOME/.aws:/root/.aws:ro \
+-v $REPO_ROOT:/workdir \
+-w /workdir \
+-e TZ="Australia/Melbourne" \
+-e AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}" \
+-e AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}" \
+-e AWS_SESSION_TOKEN="${AWS_SESSION_TOKEN}" \
+-e AWS_REGION="$(aws configure get region)" \
+hashicorp/terraform:"$TERRAFORM_VERSION" "${TERRAFORM_ARGS[@]}" $@
