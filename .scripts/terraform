@@ -4,6 +4,11 @@
 # installed: zsh, aws cli, jq, docker, git
 # 'aws sso login' has been run
 
+# brew install poewerlevel10k
+# brew install --cask font-melso-for-powerlevel10k
+# echo "source '/opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme'" >> "$HOME/.zshrc"
+
+# brew install go-task
 # brew install podman podman-tui
 # podman machine init
 # podman machine stop
